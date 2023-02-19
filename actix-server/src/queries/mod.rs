@@ -30,7 +30,7 @@ pub async fn fetch_complaints(db_pool: web::Data<Pool<Postgres>>) -> impl Respon
         .expect("fetching complaint no works");
     println!("balls");
 
-    HttpResponse::Ok()content_type("application/json").json(complaints)
+    HttpResponse::Ok().content_type("application/json").json(complaints)
 }
 
 pub async fn insert_complaint(inserted: Complaint, db_pool: Pool<Postgres>) {
