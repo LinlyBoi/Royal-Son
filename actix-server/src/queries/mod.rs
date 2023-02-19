@@ -8,7 +8,7 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres, Pool};
 
 #[derive(Serialize, Deserialize)]
 pub struct Complaint {
@@ -22,19 +22,16 @@ pub struct Complaint {
     pub write_date: NaiveDateTime,
 }
 
-#[get("/api/json/complaints")]
-pub async fn fetch_complaints(db_pool: web::Data<PgPool>) -> impl Responder {
+pub async fn fetch_complaints(db_pool: Pool<Postgres>) -> Vec<Complaint> {
     let complaints = sqlx::query_as!(Complaint, "SELECT * FROM complaints")
-        .fetch_all(db_pool.get_ref())
+        .fetch_all(&db_pool)
         .await
         .expect("fetching complaint no works");
-    println!("balls");
-
-    HttpResponse::Ok()
-        .content_type("application/json")
-        .json(complaints)
+    complaints
 }
 
-// pub async fn insert_complaint(inserted: Complaint, db_pool: Pool<Postgres>) {
-//     todo!()
-// }
+pub async fn complaints_filter(db_pool: Pool<Postgres>, column: String, column_val: String) -> () {
+    let query = format!("SELECT * FROM complaints WHERE {} = $1", column);
+    let comp_vec = sqlx::query_as!(Complaint, query.to_str(), column_vals).fetch_all(&db_pool).await.expect("Filter succ");
+
+}
