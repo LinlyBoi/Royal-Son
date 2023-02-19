@@ -26,14 +26,14 @@ fn init_address() -> (u16, String) {
     let port: u16 = env::var("ACTIX_PORT")
         .expect("SET ACTIX_PORT PLOX")
         .parse()
-        .expect("NOPE CANT PARSE THIS WHAT DID YOU PUT IN?!!!");
-    let address = env::var("ACTIX_IP").expect("SET ACTIX_IP PLOX");
+        .expect("Couldn't parse the ACTIX_PORT variable >:(");
+    let address = env::var("ACTIX_IP").expect("SET ACTIX_IP PLEASE");
     (port, address)
 }
 
 //AAA sync -> Database pools YEAA
 async fn init_pool() -> Pool<Postgres> {
-    let database_url = env::var("DATABASE_URL").expect("Put a DB url in the .env file dumbass");
+    let database_url = env::var("DATABASE_URL").expect("Please set DATABASE_URL in .env :(");
     PgPoolOptions::new()
         .max_connections(10)
         .connect(database_url.as_str())
