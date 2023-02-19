@@ -24,12 +24,13 @@ pub struct Complaint {
 
 #[get("/api/json/complaints")]
 pub async fn fetch_complaints(db_pool: web::Data<Pool<Postgres>>) -> impl Responder {
-    let complaints = sqlx::query_as!(Complaint, "SELECT * FROM complaints LIMIT 100")
+    let complaints = sqlx::query_as!(Complaint, "SELECT * FROM complaints")
         .fetch_all(db_pool.get_ref())
         .await
         .expect("fetching complaint no works");
+    println!("balls");
 
-    HttpResponse::Ok().content_type("application/json").json(complaints)
+    HttpResponse::Ok()content_type("application/json").json(complaints)
 }
 
 pub async fn insert_complaint(inserted: Complaint, db_pool: Pool<Postgres>) {
