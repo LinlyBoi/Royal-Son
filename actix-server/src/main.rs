@@ -4,7 +4,6 @@ use dotenv::dotenv;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::env;
 
-mod pog;
 mod queries;
 #[cfg(test)]
 mod tests;
