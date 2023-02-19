@@ -5,10 +5,10 @@
 //       Complaints          //
 //                           //
 ///////////////////////////////
+use actix_web::{get, web, HttpResponse, Responder};
 use chrono::NaiveDateTime;
-use serde::{Serialize, Deserialize};
-use sqlx::{Pool, Postgres, PgPool};
-use actix_web::{post, HttpResponse, get, Responder, web};
+use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 
 #[derive(Serialize, Deserialize)]
 pub struct Complaint {
@@ -23,16 +23,18 @@ pub struct Complaint {
 }
 
 #[get("/api/json/complaints")]
-pub async fn fetch_complaints(db_pool: web::Data<Pool<Postgres>>) -> impl Responder {
+pub async fn fetch_complaints(db_pool: web::Data<PgPool>) -> impl Responder {
     let complaints = sqlx::query_as!(Complaint, "SELECT * FROM complaints")
         .fetch_all(db_pool.get_ref())
         .await
         .expect("fetching complaint no works");
     println!("balls");
 
-    HttpResponse::Ok().content_type("application/json").json(complaints)
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(complaints)
 }
 
-pub async fn insert_complaint(inserted: Complaint, db_pool: Pool<Postgres>) {
-    todo!()
-}
+// pub async fn insert_complaint(inserted: Complaint, db_pool: Pool<Postgres>) {
+//     todo!()
+// }

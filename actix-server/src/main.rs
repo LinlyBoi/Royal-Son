@@ -1,7 +1,7 @@
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::postgres::PgPoolOptions;
 use std::env;
 
 mod queries;
@@ -11,12 +11,22 @@ mod tests;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    std::env::set_var("RUST_LOG", "debug");
+    env_logger::init();
     let (port, address) = init_address();
+
+    let database_url = env::var("DATABASE_URL").expect("Put a DB url in the .env file dumbass");
+    let pool = PgPoolOptions::new()
+        .max_connections(10)
+        .connect(database_url.as_str())
+        .await
+        .expect("No pool connection man :(");
+
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(init_pool()))
+            .app_data(web::Data::new(pool.clone()))
             .service(queries::fetch_complaints)
-            //.service(Files::new("/", "./dist/").index_file("index.html"))
+            .service(Files::new("/", "./dist/").index_file("index.html"))
     })
     .bind((address.as_str(), port))?
     .run()
@@ -30,14 +40,4 @@ fn init_address() -> (u16, String) {
         .expect("Couldn't parse the ACTIX_PORT variable >:(");
     let address = env::var("ACTIX_IP").expect("SET ACTIX_IP PLEASE");
     (port, address)
-}
-
-//AAA sync -> Database pools YEAA
-async fn init_pool() -> Pool<Postgres> {
-    let database_url = env::var("DATABASE_URL").expect("Please set DATABASE_URL in .env :(");
-    PgPoolOptions::new()
-        .max_connections(10)
-        .connect(database_url.as_str())
-        .await
-        .expect("No pool connection man :(")
 }
