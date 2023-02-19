@@ -15,6 +15,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(init_pool()))
+            .service(queries::fetch_complaints)
             .service(Files::new("/", "./dist/").index_file("index.html"))
     })
     .bind((address.as_str(), port))?
