@@ -27,6 +27,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .service(queries::json_complaints)
             .service(queries::json_filter_complaints)
+            .service(queries::insert_json_complaint)
             // .service(queries::json_complaints_before_date)
             .service(Files::new("/", "./dist/").index_file("index.html"))
     })
